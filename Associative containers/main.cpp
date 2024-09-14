@@ -6,13 +6,14 @@ using std::cout;
 using std::endl;
 
 #define tab "\t"
-#define DELIMITER "\n-----------------------------------------\n"
+#define delimiter "\n-----------------------------------------\n"
 
-#define STL_MAP
+//#define STL_MAP
 
 void main()
 {
 	setlocale(LC_ALL, "");
+
 #ifdef STL_MAP
 	std::map<int, std::string> week =
 	{
@@ -41,5 +42,6 @@ void main()
 		cout << it->first << tab << it->second << endl;
 	}
 #endif // STL_MAP
+
 
 }
