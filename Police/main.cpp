@@ -64,7 +64,7 @@ public:
 	{
 		this->license_plate = license_plate;
 	}*/
-	void get_violation_id(int id)
+	void set_violation_id(int id)
 	{
 		this->id = id;
 	}
@@ -85,7 +85,7 @@ public:
 		const std::string& time
 	)
 	{
-		get_violation_id(violation_id);
+		set_violation_id(violation_id);
 		set_place(place);
 		set_time(time);
 #ifdef DEBUG
