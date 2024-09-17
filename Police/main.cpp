@@ -1,5 +1,6 @@
 ﻿#pragma warning (disable: 4326)
 #include<iostream>
+#include<fstream>
 #include<string>
 #include<conio.h>
 #include<map>
@@ -98,13 +99,50 @@ public:
 		cout << "Destructor:\t" << this << endl;
 #endif // DEBUG
 	}
+	std::fstream& read(std::ifstream& ifs)
+	{
+		ifs >> place >> time >> violation;
+		return ifs;
+	}
 };
 
 std::ostream& operator<<(std::ostream& os, const Crime& obj)
 {
 	return os << obj.get_time() << ":\t" << obj.get_place() << " - " << obj.get_violations();
 }
+std::ofstream& operator<<(std::ostream& ofs, const Crime& obj)
+{
+	return ofs << obj.get_time() << ":\t" << obj.get_place() << " - " << obj.get_violations();
+}
 
+
+Crime** Load(std::map<std::string, std::list<Crime>>& base,const std::string& filename, int& n)
+{
+	std::ifstream fin(filename);
+	if (fin.is_open())
+	{
+		int id;
+		std::string place;
+		std::string time;
+		std::string violation;
+	}
+	fin.close();
+}
+void Save(const std::map<std::string, std::list<Crime>>& base, const std::string& filename)
+{
+	std::ofstream fout(filename);
+	for (std::map<std::string, std::list<Crime>>::iterator map_it = base.begin();
+		map_it != base.end();
+		++map_it)
+	{
+		fout << "Place: " << map_it->first<< endl;
+	for (std::list<Crime>::iterator it = map_it->second.begin(); it != map_it->second.end(); ++it)
+	
+		fout << *it << endl;
+	}
+	fout.close();
+	//std::string cmd = "notepad" + filename;
+}
 void main()
 {
 	setlocale(LC_ALL, "");
@@ -122,6 +160,7 @@ void main()
 		Crime(11, "ул. Пролетарская", "21:50 1.08.2024"),
 		Crime(12,"ул. Пролетарская", "22:05 1.08.2024")}},
 	};
+	Load(base,"base.txt");
 	for 
 		(
 			std::map<std::string, std::list<Crime>>::iterator map_it = base.begin();
