@@ -251,6 +251,7 @@ std::map<std::string, std::list<Crime>> load(const std::string& filename)
 		{
 			std::string license_plate;
 			std::getline(fin, license_plate, ':');
+			license_plate.erase(0, license_plate.find_first_not_of('n'));
 			fin.ignore();	//:
 
 			std::string crimes;
