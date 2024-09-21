@@ -109,7 +109,7 @@ public:
 		this->time.tm_mon = time_elements[3];
 		this->time.tm_year = time_elements[4] - 1900;
 
-	//this->time=time;
+		//this->time=time;
 	}
 	void set_timestamp(time_t timestamp)
 	{
@@ -162,11 +162,16 @@ void print(const std::map<std::string, std::list<Crime>>& base);
 void save(const std::map<std::string, std::list<Crime>>& base, const std::string filename);
 std::map<std::string, std::list<Crime>>load(const std::string& filename);
 
+//#define SAVE_CHECK
+#define LOAD_CHECK
+
 void main()
 {
 	setlocale(LC_ALL, "");
+
+#ifdef SAVE_CHECK
 	/*Crime crime(1, "ул. Ленина", "18:10 1.09.2024");
-	cout << crime << endl;*/
+cout << crime << endl;*/
 
 	std::map<std::string, std::list<Crime>> base =
 	{
@@ -181,6 +186,10 @@ void main()
 	};
 	print(base);
 	save(base, "base.txt");
+#endif // SAVE_CHECK
+
+	std::map<std::string, std::list<Crime>>base = load("base.txt");
+	print(base);
 }
 
 void print(const std::map<std::string, std::list<Crime>>& base)
@@ -191,7 +200,7 @@ void print(const std::map<std::string, std::list<Crime>>& base)
 			std::map<std::string, std::list<Crime>>::const_iterator map_it = base.begin();
 			map_it != base.end();
 			++map_it
-		)
+			)
 	{
 		cout << map_it->first << ":\n";
 		for (std::list<Crime>::const_iterator it = map_it->second.begin();
@@ -201,6 +210,7 @@ void print(const std::map<std::string, std::list<Crime>>& base)
 		}
 		cout << delimiter << endl;
 	}
+	cout << "Количество номеров в базе:" << base.size() << endl;
 }
 
 void save(const std::map<std::string, std::list<Crime>>& base, const std::string filename)
@@ -212,7 +222,7 @@ void save(const std::map<std::string, std::list<Crime>>& base, const std::string
 			std::map<std::string, std::list<Crime>>::const_iterator map_it = base.begin();
 			map_it != base.end();
 			++map_it
-		)
+			)
 	{
 		fout << map_it->first << ":\t";
 		for (std::list<Crime>::const_iterator it = map_it->second.begin();
@@ -240,7 +250,7 @@ std::map<std::string, std::list<Crime>> load(const std::string& filename)
 		while (!fin.eof())
 		{
 			std::string license_plate;
-			std::getline(fin, license_plate);
+			std::getline(fin, license_plate, ':');
 			fin.ignore();	//:
 
 			std::string crimes;
@@ -248,17 +258,17 @@ std::map<std::string, std::list<Crime>> load(const std::string& filename)
 			char* sz_buffer = new char[crimes.size() + 1] {};
 			strcpy(sz_buffer, crimes.c_str());
 			char delimiters[] = ",";
+			Crime crime(0, "place", "00:00 01.01.2000");
 			for (char* pch = strtok(sz_buffer, delimiters); pch; pch = strtok(NULL, delimiters))
 			{
 				std::cout << pch << "\t";
-				std::string s_crime(pch);
-				std::stringstream ss_crime(s_crime,std::ios_base::in|std::ios_base::out);
-				Crime crime(0,"place","00:00 01.01.2000");
+				//std::string s_crime(pch);
+				std::stringstream ss_crime(pch, std::ios_base::in | std::ios_base::out);
 				ss_crime >> crime;
 				base[license_plate].push_back(crime);
 			}
 			cout << endl;
-				delete[] sz_buffer;
+			delete[] sz_buffer;
 		}
 		fin.close();
 	}
