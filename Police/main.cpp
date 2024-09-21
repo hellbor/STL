@@ -3,6 +3,7 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include<sstream>
 #include<conio.h>
 #include<map>
 #include<list>
@@ -17,6 +18,7 @@ using std::endl;
 
 const std::map<int, std::string> VIOLATION =
 {
+	{0,"N/A"},
 	{1,"Ремень безопасности"},
 	{2,"Парковка в неположенном месте"},
 	{3,"Пересечение сплошной линии"},
@@ -106,9 +108,13 @@ public:
 		this->time.tm_mday = time_elements[2];
 		this->time.tm_mon = time_elements[3];
 		this->time.tm_year = time_elements[4] - 1900;
-	}
 
 	//this->time=time;
+	}
+	void set_timestamp(time_t timestamp)
+	{
+		time = *localtime(&timestamp);
+	}
 
 	//					Constructors
 	Crime(int violation_id, const std::string& place, const std::string& time)
@@ -138,9 +144,23 @@ std::ofstream& operator<<(std::ofstream& os, const Crime& obj)
 	os << obj.get_violation_id() << " " << obj.get_timestamp() << " " << obj.get_place();
 	return os;
 }
+std::istream& operator>>(std::istream& is, Crime& obj)
+{
+	int id;
+	time_t timestamp;
+	std::string place;
+	is >> id >> timestamp;
+	std::getline(is, place, ',');
+	is.ignore();
+	obj.set_violation_id(id);
+	obj.set_timestamp(timestamp);
+	obj.set_place(place);
+	return is;
+}
 
 void print(const std::map<std::string, std::list<Crime>>& base);
 void save(const std::map<std::string, std::list<Crime>>& base, const std::string filename);
+std::map<std::string, std::list<Crime>>load(const std::string& filename);
 
 void main()
 {
@@ -200,13 +220,51 @@ void save(const std::map<std::string, std::list<Crime>>& base, const std::string
 		{
 			fout << *it << ",";
 		}
-		fout.seekp(-1, std::ios::cur);	//Метод seekp(offset, direction) задает
-		//позицию курсора записи (з - put)
-		//-1 смещение на 1 символ обратно, std::ios::cur - показывает,
-		// что смещение происходит от текущей позиции курсора
-		fout << ";\n";
+		//fout.seekp(-1, std::ios::cur);
+		//Метод seekp(offset, direction) задает позицию курсора записи (з - put) -1 смещение на 1 символ обратно
+		// std::ios::cur - показывает, что смещение происходит от текущей позиции курсора
+		//fout << ";\n";
+		fout << endl;
 	}
 	fout.close();
 	std::string command = "notepad " + filename;
 	system(command.c_str());
+}
+
+std::map<std::string, std::list<Crime>> load(const std::string& filename)
+{
+	std::map<std::string, std::list<Crime>> base;
+	std::ifstream fin(filename);
+	if (fin.is_open())
+	{
+		while (!fin.eof())
+		{
+			std::string license_plate;
+			std::getline(fin, license_plate);
+			fin.ignore();	//:
+
+			std::string crimes;
+			std::getline(fin, crimes);
+			char* sz_buffer = new char[crimes.size() + 1] {};
+			strcpy(sz_buffer, crimes.c_str());
+			char delimiters[] = ",";
+			for (char* pch = strtok(sz_buffer, delimiters); pch; pch = strtok(NULL, delimiters))
+			{
+				std::cout << pch << "\t";
+				std::string s_crime(pch);
+				std::stringstream ss_crime(s_crime,std::ios_base::in|std::ios_base::out);
+				Crime crime(0,"place","00:00 01.01.2000");
+				ss_crime >> crime;
+				base[license_plate].push_back(crime);
+			}
+			cout << endl;
+				delete[] sz_buffer;
+		}
+		fin.close();
+	}
+	else
+	{
+		std::cerr << "Error: file not found" << endl;
+	}
+	return base;
 }
