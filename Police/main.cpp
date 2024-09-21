@@ -16,6 +16,26 @@ using std::endl;
 #define tab "\t"
 #define delimiter "\n------------------------------------------------------------------------------\n"
 
+#define Enter		13
+#define Escape		27
+#define UP_ARROW	72
+#define DOWN_ARROW	80
+
+const char* MENU_ITEMS[] =
+{
+	"1. Загрузить базы из файла",
+	"2. Сохранить базу в файл",
+	"3. Вывести базу на экран",
+	"4. Вывести информацию по номеру",
+	"5. Добавить нарушение",
+};
+const int MENU_SIZE = sizeof(MENU_ITEMS) / sizeof(MENU_ITEMS[0]);
+
+//const std::map<int,std::string>MENU_ITEMS=
+//{
+//
+//}
+
 const std::map<int, std::string> VIOLATION =
 {
 	{0,"N/A"},
@@ -158,12 +178,13 @@ std::istream& operator>>(std::istream& is, Crime& obj)
 	return is;
 }
 
+int menu();
 void print(const std::map<std::string, std::list<Crime>>& base);
 void save(const std::map<std::string, std::list<Crime>>& base, const std::string filename);
 std::map<std::string, std::list<Crime>>load(const std::string& filename);
 
 //#define SAVE_CHECK
-#define LOAD_CHECK
+//#define LOAD_CHECK
 
 void main()
 {
@@ -188,8 +209,47 @@ cout << crime << endl;*/
 	save(base, "base.txt");
 #endif // SAVE_CHECK
 
+#ifdef LOAD_CHECK
 	std::map<std::string, std::list<Crime>>base = load("base.txt");
 	print(base);
+#endif // DEBUGload
+
+	do
+	{
+		switch (menu())
+		{
+
+		}
+	} while (true);
+}
+
+int menu()
+{
+	int selected_item = 0;
+	char key;
+	do
+	{
+		system("CLS");
+		for (int i = 0; i < MENU_SIZE; i++)
+		{
+			cout << (i == selected_item ? "[" : " ");
+			cout.width(32);
+			cout << std::left;
+			cout << MENU_ITEMS[i];
+			cout << (i == selected_item ? "]" : " ");
+			cout << endl;
+		}
+		key = _getch();
+		//cout << (int)key << endl;
+		switch (key)
+		{
+		case UP_ARROW:	 if (selected_item > 0)selected_item--; break;
+		case DOWN_ARROW: if (selected_item < MENU_SIZE - 1)selected_item++; break;
+		case Enter:		 return selected_item + 1;
+		case Escape:	 return 0;
+		}
+	} while (key != Escape);
+	return 0;
 }
 
 void print(const std::map<std::string, std::list<Crime>>& base)
