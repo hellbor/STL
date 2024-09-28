@@ -65,7 +65,7 @@ const std::map<int, std::string> VIOLATION =
 class Crime
 {
 	int id;
-	int violation;
+	//int violation;
 	std::string place;
 	tm time;
 public:
@@ -115,8 +115,12 @@ public:
 	}
 	void set_time(const std::string& time)
 	{
+		//1. Создаем временую строку для того, чтобы пропарсить полученную строку
 		char* time_buffer = new char[time.size() + 1] {};
+		//2. Копируем полученную строку в буфер:
 		strcpy(time_buffer, time.c_str());
+		//Функция strcpy(dst, src); копирует содержимое строки-источника в строку получателя
+
 		//3) Создаем массив для хранения элементов времени:
 		int time_elements[5]{};
 		int i = 0;
@@ -187,6 +191,8 @@ int menu();
 void print(const std::map<std::string, std::list<Crime>>& base);
 void save(const std::map<std::string, std::list<Crime>>& base, const std::string filename);
 std::map<std::string, std::list<Crime>>load(const std::string& filename);
+void add_crime(std::map<std::string, std::list<Crime>>& base);
+void print_by_number(const std::map<std::string, std::list<Crime>>& base);
 
 //#define SAVE_CHECK
 //#define LOAD_CHECK
@@ -228,8 +234,9 @@ cout << crime << endl;*/
 		case 1: base = load("base,txt"); break;
 		case 2: save(base, "base,txt");	 break;
 		case 3: print(base);			 break;
-		case 4: cout << "Скоро будет" << endl;  break;
-		case 5: cout << "Скоро будет" << endl;  break;
+		case 4: add_crime(base);		 break;
+		case 5: print_by_number(base);   break;
+		case 6: exit(0);
 		}
 	} while (true);
 }
@@ -265,7 +272,7 @@ int menu()
 		}
 		if (selected_item == MENU_ITEMS.size() + 1)selected_item = 1;
 		if (selected_item == 0)selected_item = MENU_ITEMS.size();
-
+		system("CLS");
 	} while (key != Escape);
 	return 0;
 }
@@ -357,4 +364,35 @@ std::map<std::string, std::list<Crime>> load(const std::string& filename)
 		std::cerr << "Error: file not found" << endl;
 	}
 	return base;
+}
+
+void add_crime(std::map<std::string, std::list<Crime>>& base)
+{
+	int id;
+	std::string license_plate;
+	std::string place;
+	std::string time;
+	cout << "Введите номер нарушения: "; cin >> id;
+	cout << "Введите номер автомобиля: "; cin >> license_plate;
+	cout << "Введите место нарушения: "; cin >> place;
+	cout << "Введите время и дату нарушения: "; cin >> time;
+	base[license_plate].push_back(Crime(id, place, time));
+}
+
+void print_by_number(const std::map<std::string, std::list<Crime>>& base)
+{
+	std::string license_plate;
+	cout << "Введите номер автомобиля: "; cin >> license_plate;
+	try
+	{
+		for (std::list<Crime>::const_iterator it = base.at(license_plate).begin(); it != base.at(license_plate).end(); ++it)
+		{
+			cout << "\t" << *it << endl;
+		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Номера нет в базе" << endl;
+	}
+	system("PAUSE");
 }
